@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import api from "../api";
 import History from "./History";
 
-
+const GENDER_OPTS = ["Women", "Men", "Unisex"];
 const STYLE_OPTS = ["Casual", "Formal", "Ethnic", "Streetwear", "Minimal", "Bold"];
 const OCCASION_OPTS = ["Office", "Date night", "Casual outing", "Wedding", "Party", "Brunch", "College", "Festive", "Travel"];
 const WEATHER_OPTS = ["Hot & sunny", "Humid", "Mild", "Rainy", "Cold"];
@@ -73,6 +73,7 @@ function OutfitCard({ item }) {
 }
 
 export default function Chat({ token, user, onLogout }) {
+    const [gender, setGender] = useState(null);
     const [style, setStyle] = useState(null);
     const [occasion, setOccasion] = useState(null);
     const [weather, setWeather] = useState(null);
@@ -84,6 +85,7 @@ export default function Chat({ token, user, onLogout }) {
     const scrollRef = useRef(null);
     const [view, setView] = useState("chat");
 
+
     useEffect(() => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
     }, [messages, loading]);
@@ -92,6 +94,7 @@ export default function Chat({ token, user, onLogout }) {
 
     function summaryText() {
         const parts = [];
+        if (gender) parts.push(`Gender: ${gender}`);
         if (style) parts.push(`Style: ${style}`);
         if (occasion) parts.push(`Occasion: ${occasion}`);
         if (weather) parts.push(`Weather: ${weather}`);
@@ -110,7 +113,7 @@ export default function Chat({ token, user, onLogout }) {
         try {
             const res = await api.post(
                 "/outfit/generate",
-                { style, occasion, weather, budget, notes },
+                { gender, style, occasion, weather, budget, notes },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setMessages((m) => [...m, { role: "ai", intro: res.data.intro, items: res.data.items || [] }]);
@@ -228,20 +231,24 @@ export default function Chat({ token, user, onLogout }) {
                         <span className={`text-gold-soft transition-transform ${drawerOpen ? "rotate-180" : ""}`}>▾</span>
                     </button>
                     {drawerOpen && (
-                        <div className="bg-ink-2 border-t border-white/10 max-h-72 overflow-y-auto px-8 py-5 flex flex-col gap-5">                            <ChipGroup label="Style" options={STYLE_OPTS} value={style} onChange={setStyle} />
+                        <div className="bg-ink-2 border-t border-white/10 max-h-72 overflow-y-auto px-8 py-5 flex flex-col gap-5">
+                            <ChipGroup label="Gender" options={GENDER_OPTS} value={gender} onChange={setGender} />
+                            <ChipGroup label="Style" options={STYLE_OPTS} value={style} onChange={setStyle} />
                             <ChipGroup label="Occasion" options={OCCASION_OPTS} value={occasion} onChange={setOccasion} />
                             <ChipGroup label="Weather" options={WEATHER_OPTS} value={weather} onChange={setWeather} />
                             <ChipGroup label="Budget" options={BUDGET_OPTS} value={budget} onChange={setBudget} />
+
                         </div>
                     )}
 
                     {/* Composer */}
-                    <div className="flex items-center gap-3 px-8 py-5 border-t border-white/10">                        <input
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                        placeholder="Add anything else — describe your style..."
-                        className="flex-1 bg-ink-2 border border-white/10 rounded-full px-5 py-4 text-[15px] outline-none focus:border-gold-soft" />
+                    <div className="flex items-center gap-3 px-8 py-5 border-t border-white/10">
+                        <input
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                            placeholder="Add anything else — describe your style..."
+                            className="flex-1 bg-ink-2 border border-white/10 rounded-full px-5 py-4 text-[15px] outline-none focus:border-gold-soft" />
                         <button
                             onClick={handleSend}
                             disabled={loading}

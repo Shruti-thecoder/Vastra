@@ -7,6 +7,7 @@ const outfitSchema = new mongoose.Schema({
         required: true
     },
     filters: {
+        gender: String,
         style: String,
         occasion: String,
         weather: String,

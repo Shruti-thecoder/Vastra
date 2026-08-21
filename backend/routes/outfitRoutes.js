@@ -17,9 +17,10 @@ router.get("/history", requireAuth, async (req, res) => {
 
 router.post("/generate", requireAuth, async (req, res) => {
     try {
-        const { style, occasion, weather, budget, notes } = req.body;
+        const { gender, style, occasion, weather, budget, notes } = req.body;
 
         const summaryParts = [];
+        if (gender) summaryParts.push(`Gender: ${gender}`);
         if (style) summaryParts.push(`Style: ${style}`);
         if (occasion) summaryParts.push(`Occasion: ${occasion}`);
         if (weather) summaryParts.push(`Weather: ${weather}`);
@@ -27,8 +28,7 @@ router.post("/generate", requireAuth, async (req, res) => {
         if (notes) summaryParts.push(`Notes: ${notes}`);
         const summary = summaryParts.length ? summaryParts.join(" · ") : "Surprise me with something stylish.";
 
-        const systemPrompt = `You are Vastra, an expert personal fashion stylist for an Indian shopping audience. Respond with ONLY a raw JSON object, no markdown fences, no prose, in exactly this shape:
-{"intro": "one warm sentence introducing the look", "items": [{"category": "Top|Bottom|Dress|Footwear|Bag|Earrings|Accessory", "name": "short product name", "description": "one short sentence, under 18 words", "searchQuery": "concise shopping search phrase", "priceMin": number, "priceMax": number}]}
+        const systemPrompt = `You are Vastra, an expert personal fashion stylist for an Indian shopping audience. Tailor every item strictly to the stated gender: for Women suggest items like dresses, sarees, kurtas, tops, skirts, jewelry; for Men suggest shirts, trousers, kurtas, jackets, watches, footwear; for Unisex or if no gender is stated, pick versatile items suitable for anyone. Respond with ONLY a raw JSON object, no markdown fences, no prose, in exactly this shape:{"intro": "one warm sentence introducing the look", "items": [{"category": "Top|Bottom|Dress|Footwear|Bag|Earrings|Accessory", "name": "short product name", "description": "one short sentence, under 18 words", "searchQuery": "concise shopping search phrase", "priceMin": number, "priceMax": number}]}
 Include 4 to 6 complementary items forming ONE cohesive outfit. Respect the budget for the total look if given.`;
 
         const response = await fetch(
@@ -51,7 +51,7 @@ Include 4 to 6 complementary items forming ONE cohesive outfit. Respect the budg
 
         await Outfit.create({
             userId: req.userId,
-            filters: { style, occasion, weather, budget, notes },
+            filters: { gender, style, occasion, weather, budget, notes },
             items: parsed.items || []
         });
 
