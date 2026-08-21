@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@theme {
+  --color-ink: #14110F;
+  --color-ink-2: #1E1A16;
+  --color-ink-3: #2A241E;
+  --color-ivory: #F4EDE4;
+  --color-ivory-dim: #B8AFA2;
+  --color-gold: #C9A24B;
+  --color-gold-soft: #8A7038;
+  --color-rose: #B5626B;
+
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-family: var(--font-sans);
+}
